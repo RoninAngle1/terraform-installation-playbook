@@ -1,0 +1,2 @@
+[all]
+your_server_ip_or_hostname ansible_user=username ansible_ssh_private_key_file=~/.ssh/id_rsa
