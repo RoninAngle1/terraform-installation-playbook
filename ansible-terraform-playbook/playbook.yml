@@ -1,0 +1,44 @@
+---
+- name: Ensure dependencies are installed (Debian/Ubuntu)
+  apt:
+    name:
+      - unzip
+      - curl
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure dependencies are installed (RedHat/CentOS)
+  yum:
+    name:
+      - unzip
+      - curl
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Download Terraform binary
+  get_url:
+    url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+    dest: /tmp/terraform_{{ terraform_version }}.zip
+    mode: '0755'
+
+- name: Unzip Terraform binary to /usr/local/bin
+  unarchive:
+    src: /tmp/terraform_{{ terraform_version }}.zip
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: '0755'
+
+- name: Ensure Terraform binary is executable
+  file:
+    path: /usr/local/bin/terraform
+    mode: '0755'
+
+- name: Check Terraform installation
+  command: terraform version
+  register: terraform_version_output
+  ignore_errors: yes
+
+- name: Display Terraform version
+  debug:
+    msg: "{{ terraform_version_output.stdout }}"
